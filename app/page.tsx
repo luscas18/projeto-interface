@@ -15,9 +15,10 @@ export default function MovimentacoesLive() {
   const images = ['/01.png', '/02.png', '/03.png']
 
   useEffect(() => {
+    // 🔹 Carrega os dados iniciais
     const fetchInitial = async () => {
       const { data, error } = await supabaseClient
-        .from<Movimentacao>('Movimentacao')
+        .from('Movimentacao') // ❌ removido o tipo genérico
         .select('*')
         .order('created_at', { ascending: false })
         .limit(1)
@@ -26,6 +27,7 @@ export default function MovimentacoesLive() {
     }
     fetchInitial()
 
+    // 🔹 Escuta mudanças em tempo real na tabela Movimentacao
     const channel = supabaseClient
       .channel('public:Movimentacao')
       .on(
@@ -33,7 +35,7 @@ export default function MovimentacoesLive() {
         {
           event: '*',
           schema: 'public',
-          table: 'Movimentacao'
+          table: 'Movimentacao',
         },
         (payload) => {
           const newRec = payload.new as Movimentacao
@@ -49,7 +51,7 @@ export default function MovimentacoesLive() {
     }
   }, [])
 
-  // renderiza quantidade de imagens aleatórias
+  // 🔹 Renderiza as imagens aleatórias com animação
   const renderImages = () => {
     if (!items.length || items[0].quantidade <= 0) return null
 
@@ -80,12 +82,13 @@ export default function MovimentacoesLive() {
     <>
       <section className="relative w-full min-h-screen bg-[url(/bg.webp)] bg-cover flex flex-wrap justify-center items-end">
         {renderImages()}
-        <div className='absolute top-0 left-0 bg-white text-black p-[20px] text-[50px]'>
-          
+        <div className="absolute top-0 left-0 bg-white text-black p-[20px] text-[50px]">
+          {/* Aqui você pode exibir a quantidade atual */}
+          {items.length > 0 ? items[0].quantidade : 0}
         </div>
       </section>
 
-      <div className="">
+      <div>
         <UpdateMovimentacaoPage />
       </div>
     </>
